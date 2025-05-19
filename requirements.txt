@@ -1,0 +1,25 @@
+# Core dependencies
+selenium==4.13.0
+pandas==2.1.1
+python-dotenv==1.0.0
+requests==2.31.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# Email and networking
+smtplib-threaded==0.1.0
+email-validator==2.0.0
+
+# Database and storage
+pysqlite3==0.5.1
+
+# Utilities
+tqdm==4.65.0
+python-dateutil==2.8.2
+fake-useragent==1.2.1
+
+# Web scraping utilities
+webdriver-manager==4.0.0
+anticaptchaofficial==1.0.46
+html2text==2020.1.16
+cloudscraper==1.2.71

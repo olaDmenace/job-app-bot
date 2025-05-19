@@ -1,0 +1,55 @@
+{
+  "common": {
+    "default_max_pages": 5,
+    "default_remote_only": true,
+    "job_keywords": ["frontend developer", "front end developer", "frontend engineer", "web developer", "javascript developer"],
+    "blacklist_keywords": ["bootcamp", "training", "certification", "course"]
+  },
+  "platforms": {
+    "web3.career": {
+      "max_pages": 5,
+      "remote_only": true,
+      "enabled": true
+    },
+    "Indeed": {
+      "max_pages": 5,
+      "remote_only": true,
+      "enabled": true
+    },
+    "LinkedIn": {
+      "max_pages": 3,
+      "remote_only": true,
+      "enabled": true
+    },
+    "Dice": {
+      "max_pages": 5,
+      "remote_only": true,
+      "enabled": false
+    },
+    "Monster": {
+      "max_pages": 5,
+      "remote_only": true,
+      "enabled": false
+    },
+    "Glassdoor": {
+      "max_pages": 3,
+      "remote_only": true,
+      "enabled": false
+    },
+    "Adzuna": {
+      "max_pages": 5,
+      "remote_only": true,
+      "enabled": false
+    },
+    "Jobsite": {
+      "max_pages": 5,
+      "remote_only": true,
+      "enabled": false
+    },
+    "CVLibrary": {
+      "max_pages": 5,
+      "remote_only": true,
+      "enabled": false
+    }
+  }
+}
