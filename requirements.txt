@@ -7,11 +7,10 @@ beautifulsoup4==4.12.2
 lxml==4.9.3
 
 # Email and networking
-smtplib-threaded==0.1.0
 email-validator==2.0.0
 
 # Database and storage
-pysqlite3==0.5.1
+# pysqlite3==0.5.1  # Using built-in sqlite3 module instead
 
 # Utilities
 tqdm==4.65.0
