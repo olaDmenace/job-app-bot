@@ -10,23 +10,25 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, WebDriverException
+from webdriver_manager.chrome import ChromeDriverManager
 
 from database_manager import JobApplicationDB
 
 class BaseJobScraper(ABC):
     """Abstract base class for all job scrapers."""
     
-    def __init__(self, source_name, requires_login=False):
+    def __init__(self, source_name, requires_login=False, db_instance=None):
         """
         Initialize a job scraper.
         
         Args:
             source_name (str): Name of the job source (e.g., "Indeed", "LinkedIn")
             requires_login (bool): Whether this source requires user login
+            db_instance (JobApplicationDB): Shared database instance
         """
         self.driver = None
         self.jobs_data = []
-        self.db = JobApplicationDB()
+        self.db = db_instance if db_instance else JobApplicationDB()
         self.source_name = source_name
         self.requires_login = requires_login
         
@@ -50,9 +52,8 @@ class BaseJobScraper(ABC):
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
             options.add_experimental_option('useAutomationExtension', False)
             
-            # Setup ChromeDriver
-            driver_path = os.path.join(os.getcwd(), "drivers", "chromedriver")
-            service = Service(driver_path)
+            # Setup ChromeDriver using webdriver-manager
+            service = Service(ChromeDriverManager().install())
             
             # Initialize driver
             self.driver = webdriver.Chrome(service=service, options=options)
