@@ -19,9 +19,9 @@ from job_scrapers.base_scraper import BaseJobScraper
 class TemplateJobScraper(BaseJobScraper):
     """Template for creating new job scrapers"""
     
-    def __init__(self):
+    def __init__(self, db_instance=None):
         # Initialize with your platform name and whether login is required
-        super().__init__(source_name="Template", requires_login=False)
+        super().__init__(source_name="Template", requires_login=False, db_instance=db_instance)
     
     def get_base_url(self, remote_only=True):
         """

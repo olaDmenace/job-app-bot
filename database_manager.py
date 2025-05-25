@@ -28,10 +28,23 @@ class JobApplicationDB:
             print(f"Error creating database: {str(e)}")
             raise
 
+    def ensure_connection(self):
+        """Ensure database connection is valid, reconnect if needed"""
+        try:
+            if self.conn is None:
+                self.conn = sqlite3.connect(self.db_path)
+            else:
+                # Test the connection
+                self.conn.execute("SELECT 1")
+        except sqlite3.Error:
+            # Connection is bad, recreate it
+            self.conn = sqlite3.connect(self.db_path)
+
     # Original job-related methods
     def add_job(self, job_data):
         """Add or update a job in the database"""
         try:
+            self.ensure_connection()
             cursor = self.conn.cursor()
             
             # Check if job already exists
@@ -96,6 +109,7 @@ class JobApplicationDB:
     def update_application_status(self, job_id, status, notes=None):
         """Update the status of a job application"""
         try:
+            self.ensure_connection()
             cursor = self.conn.cursor()
             
             cursor.execute("""
@@ -116,6 +130,7 @@ class JobApplicationDB:
     def get_all_applications(self):
         """Get all job applications with their current status"""
         try:
+            self.ensure_connection()
             cursor = self.conn.cursor()
             
             cursor.execute("""
@@ -140,6 +155,7 @@ class JobApplicationDB:
     def add_contact(self, contact_data):
         """Add or update a contact in the database"""
         try:
+            self.ensure_connection()
             cursor = self.conn.cursor()
             
             # First check if company exists or needs to be created
@@ -221,6 +237,7 @@ class JobApplicationDB:
     def get_contacts_by_company(self, company_name):
         """Get all contacts for a specific company"""
         try:
+            self.ensure_connection()
             cursor = self.conn.cursor()
             
             cursor.execute("""
@@ -247,6 +264,7 @@ class JobApplicationDB:
     def add_email_template(self, template_data):
         """Add or update an email template"""
         try:
+            self.ensure_connection()
             cursor = self.conn.cursor()
             
             # Check if template already exists
@@ -302,6 +320,7 @@ class JobApplicationDB:
     def get_email_templates(self, use_case=None):
         """Get email templates, optionally filtered by use case"""
         try:
+            self.ensure_connection()
             cursor = self.conn.cursor()
             
             if use_case:
@@ -329,6 +348,7 @@ class JobApplicationDB:
     def track_outreach_message(self, message_data):
         """Track an outreach message sent to a contact"""
         try:
+            self.ensure_connection()
             cursor = self.conn.cursor()
             
             cursor.execute("""
@@ -359,6 +379,7 @@ class JobApplicationDB:
     def update_message_status(self, message_id, status, response_type=None):
         """Update the status of an outreach message"""
         try:
+            self.ensure_connection()
             cursor = self.conn.cursor()
             
             cursor.execute("""
@@ -382,6 +403,7 @@ class JobApplicationDB:
     def get_pending_follow_ups(self):
         """Get all messages that need follow-up"""
         try:
+            self.ensure_connection()
             cursor = self.conn.cursor()
             
             cursor.execute("""

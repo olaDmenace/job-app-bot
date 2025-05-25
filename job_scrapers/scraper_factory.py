@@ -34,13 +34,15 @@ class JobScraperFactory:
                             issubclass(obj, BaseJobScraper) and 
                             obj != BaseJobScraper):
                             
-                            # Create a temporary instance to get attributes
-                            temp_instance = obj()
+                            # Get class name and assume requires_login based on naming convention
+                            # Most scrapers that require login have it in their class name or are known ones
+                            scraper_name = name.replace('Scraper', '').replace('JobScraper', '')
+                            requires_login = any(login_site in name.lower() for login_site in ['linkedin', 'glassdoor', 'dice', 'monster'])
                             
                             # Add to available scrapers
-                            available_scrapers[temp_instance.source_name] = {
+                            available_scrapers[scraper_name] = {
                                 'class': obj,
-                                'requires_login': temp_instance.requires_login
+                                'requires_login': requires_login
                             }
                             
                 except Exception as e:
@@ -49,12 +51,13 @@ class JobScraperFactory:
         return available_scrapers
     
     @staticmethod
-    def create_scraper(scraper_name):
+    def create_scraper(scraper_name, db_instance=None):
         """
         Create an instance of the specified job scraper.
         
         Args:
             scraper_name (str): Name of the scraper to create
+            db_instance: Shared database instance to pass to the scraper
             
         Returns:
             BaseJobScraper: An instance of the requested scraper
@@ -64,6 +67,6 @@ class JobScraperFactory:
         # Check if the requested scraper exists
         for name, info in available_scrapers.items():
             if name.lower() == scraper_name.lower():
-                return info['class']()
+                return info['class'](db_instance=db_instance)
         
         raise ValueError(f"Scraper '{scraper_name}' not found. Available scrapers: {', '.join(available_scrapers.keys())}")

@@ -12,8 +12,8 @@ from job_scrapers.base_scraper import BaseJobScraper
 class LinkedInScraper(BaseJobScraper):
     """Scraper for LinkedIn Jobs"""
     
-    def __init__(self):
-        super().__init__(source_name="LinkedIn", requires_login=True)
+    def __init__(self, db_instance=None):
+        super().__init__(source_name="LinkedIn", requires_login=True, db_instance=db_instance)
     
     def get_base_url(self, remote_only=True):
         """Get the starting URL based on search parameters"""

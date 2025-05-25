@@ -43,6 +43,24 @@ class BaseJobScraper(ABC):
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument('--disable-gpu')
             options.add_argument('--window-size=1920,1080')
+            options.add_argument('--disable-web-security')
+            options.add_argument('--disable-features=VizDisplayCompositor')
+            options.add_argument('--disable-extensions-file-access-check')
+            options.add_argument('--disable-extensions')
+            options.add_argument('--disable-plugins-discovery')
+            
+            # Handle Windows Chrome executable paths
+            import platform
+            if platform.system() == "Windows":
+                chrome_paths = [
+                    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+                    "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+                    os.path.expanduser("~\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe"),
+                ]
+                for path in chrome_paths:
+                    if os.path.exists(path):
+                        options.binary_location = path
+                        break
             
             # Set user agent
             user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
@@ -52,18 +70,62 @@ class BaseJobScraper(ABC):
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
             options.add_experimental_option('useAutomationExtension', False)
             
-            # Setup ChromeDriver using webdriver-manager
-            service = Service(ChromeDriverManager().install())
+            # Additional anti-detection preferences
+            prefs = {
+                "profile.default_content_setting_values.notifications": 2,
+                "profile.default_content_settings.popups": 0,
+                "profile.managed_default_content_settings.images": 2,
+                "profile.default_content_setting_values.geolocation": 2
+            }
+            options.add_experimental_option("prefs", prefs)
             
-            # Initialize driver
-            self.driver = webdriver.Chrome(service=service, options=options)
-            self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-            
-            print(f"Browser setup successful for {self.source_name}")
-            return True
+            # Setup ChromeDriver - try fallback first since it's working
+            try:
+                # Try fallback method first (it's working)
+                self.driver = webdriver.Chrome(options=options)
+                self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+                
+                print(f"Browser setup successful for {self.source_name}")
+                return True
+            except Exception as fallback_error:
+                print(f"Direct Chrome method failed: {str(fallback_error)}")
+                # Try webdriver-manager as backup
+                try:
+                    service = Service(ChromeDriverManager().install())
+                    self.driver = webdriver.Chrome(service=service, options=options)
+                    self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+                    
+                    print(f"Browser setup successful for {self.source_name} (webdriver-manager)")
+                    return True
+                except Exception as manager_error:
+                    print(f"Both methods failed. Fallback: {str(fallback_error)}, Manager: {str(manager_error)}")
+                    raise fallback_error
             
         except Exception as e:
             print(f"Error setting up browser: {str(e)}")
+            return False
+    
+    def check_for_bot_detection(self):
+        """Check if page has bot detection and handle gracefully"""
+        try:
+            # Common bot detection indicators
+            bot_indicators = [
+                "verify you are human",
+                "captcha",
+                "cloudflare",
+                "access denied",
+                "blocked",
+                "robot",
+                "bot detected"
+            ]
+            
+            page_text = self.driver.page_source.lower()
+            for indicator in bot_indicators:
+                if indicator in page_text:
+                    print(f"Bot detection found: {indicator}")
+                    return True
+            return False
+        except:
             return False
             
     def human_like_delay(self, min_seconds=2, max_seconds=5):
@@ -231,8 +293,12 @@ class BaseJobScraper(ABC):
             while page <= max_pages:
                 print(f"\nProcessing page {page}...")
                 
-                new_jobs = self._extract_jobs()
-                total_jobs += len(new_jobs)
+                try:
+                    new_jobs = self._extract_jobs()
+                    total_jobs += len(new_jobs)
+                except Exception as extract_error:
+                    print(f"Error extracting jobs from {self.source_name} page: {str(extract_error)}")
+                    new_jobs = []
                 
                 if not new_jobs:
                     print("No jobs found on this page")

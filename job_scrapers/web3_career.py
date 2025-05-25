@@ -9,8 +9,8 @@ from job_scrapers.base_scraper import BaseJobScraper
 class Web3CareerScraper(BaseJobScraper):
     """Scraper for web3.career"""
     
-    def __init__(self):
-        super().__init__(source_name="web3.career", requires_login=False)
+    def __init__(self, db_instance=None):
+        super().__init__(source_name="web3.career", requires_login=False, db_instance=db_instance)
     
     def get_base_url(self, remote_only=True):
         """Get the starting URL based on remote filter"""

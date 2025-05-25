@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 from job_scrapers.scraper_factory import JobScraperFactory
+from database_manager import JobApplicationDB
 
 class JobScraperCoordinator:
     """Coordinates multiple job scrapers"""
@@ -17,6 +18,9 @@ class JobScraperCoordinator:
         """
         # Load environment variables for credentials
         load_dotenv()
+        
+        # Create shared database instance
+        self.db = JobApplicationDB()
         
         self.login_credentials = {}
         self.config = {}
@@ -94,8 +98,8 @@ class JobScraperCoordinator:
             list: The extracted job data
         """
         try:
-            # Create scraper
-            scraper = JobScraperFactory.create_scraper(scraper_name)
+            # Create scraper with shared database instance
+            scraper = JobScraperFactory.create_scraper(scraper_name, self.db)
             
             # Get platform-specific configuration
             platform_config = self.get_platform_config(scraper.source_name)

@@ -11,8 +11,8 @@ from job_scrapers.base_scraper import BaseJobScraper
 class AdzunaScraper(BaseJobScraper):
     """Scraper for Adzuna"""
     
-    def __init__(self):
-        super().__init__(source_name="Adzuna", requires_login=False)
+    def __init__(self, db_instance=None):
+        super().__init__(source_name="Adzuna", requires_login=False, db_instance=db_instance)
     
     def get_base_url(self, remote_only=True):
         """Get the starting URL for job search"""
