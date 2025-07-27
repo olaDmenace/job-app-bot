@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-import pandas as pd
+# import pandas as pd  # Removed to avoid Windows compatibility issues
 import os
 from dotenv import load_dotenv
 import socket
@@ -56,12 +56,12 @@ def test_setup():
             print("2. Try running the script again when connection is better")
             print("3. If problem persists, you might need to manually download ChromeDriver")
     
-    # Test pandas (works offline)
+    # Test CSV functionality (built-in Python module)
     try:
-        df = pd.DataFrame({'test': [1, 2, 3]})
-        print("✓ Pandas setup successful")
+        import csv
+        print("[OK] CSV setup successful")
     except Exception as e:
-        print("✗ Pandas setup failed:", str(e))
+        print("[ERROR] CSV setup failed:", str(e))
     
     # Test dotenv (works offline)
     try:

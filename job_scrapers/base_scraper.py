@@ -1,9 +1,9 @@
 import os
 import time
 import random
+import csv
 from datetime import datetime
 from abc import ABC, abstractmethod
-import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -17,7 +17,7 @@ from database_manager import JobApplicationDB
 class BaseJobScraper(ABC):
     """Abstract base class for all job scrapers."""
     
-    def __init__(self, source_name, requires_login=False, db_instance=None):
+    def __init__(self, source_name, requires_login=False, db_instance=None, scraper_type="web"):
         """
         Initialize a job scraper.
         
@@ -25,15 +25,21 @@ class BaseJobScraper(ABC):
             source_name (str): Name of the job source (e.g., "Indeed", "LinkedIn")
             requires_login (bool): Whether this source requires user login
             db_instance (JobApplicationDB): Shared database instance
+            scraper_type (str): Type of scraper ("web" or "api")
         """
         self.driver = None
         self.jobs_data = []
         self.db = db_instance if db_instance else JobApplicationDB()
         self.source_name = source_name
         self.requires_login = requires_login
+        self.scraper_type = scraper_type
         
     def setup_driver(self):
         """Initialize and configure the Chrome driver with anti-detection measures."""
+        # Skip driver setup for API scrapers
+        if self.scraper_type == "api":
+            return True
+        
         try:
             options = webdriver.ChromeOptions()
             
@@ -141,11 +147,15 @@ class BaseJobScraper(ABC):
         try:
             # Save to CSV for backup
             filename = f"{self.source_name.lower()}_jobs_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
-            df = pd.DataFrame(self.jobs_data)
             
-            # Save to CSV
-            df.to_csv(filename, index=False)
-            print(f"\nSaved {len(self.jobs_data)} jobs to {filename}")
+            # Save to CSV using built-in csv module
+            if self.jobs_data:
+                with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+                    fieldnames = self.jobs_data[0].keys()
+                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(self.jobs_data)
+                print(f"\nSaved {len(self.jobs_data)} jobs to {filename}")
             
             # Save to database
             db_saved_count = 0
@@ -164,7 +174,8 @@ class BaseJobScraper(ABC):
             
     def cleanup(self):
         """Clean up resources."""
-        if self.driver:
+        # Only cleanup driver if it's a web scraper
+        if self.scraper_type == "web" and self.driver:
             try:
                 self.driver.quit()
                 print(f"Browser closed successfully for {self.source_name}")

@@ -1,7 +1,7 @@
 import os
 import time
 import random
-import pandas as pd
+import csv
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -166,9 +166,15 @@ class ContactFinder:
         try:
             # Save to CSV for backup
             filename = f"contacts_{datetime.now().strftime('%Y%m%d_%H%M')}.csv"
-            df = pd.DataFrame(self.contacts_data)
-            df.to_csv(filename, index=False)
-            print(f"\nSaved {len(self.contacts_data)} contacts to {filename}")
+            
+            # Save to CSV using built-in csv module
+            if self.contacts_data:
+                with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+                    fieldnames = self.contacts_data[0].keys()
+                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(self.contacts_data)
+                print(f"\nSaved {len(self.contacts_data)} contacts to {filename}")
             
             # Save to database
             saved_count = 0

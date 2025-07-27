@@ -1,6 +1,5 @@
 # Core dependencies
 selenium==4.13.0
-pandas==2.1.1
 python-dotenv==1.0.0
 requests==2.31.0
 beautifulsoup4==4.12.2
@@ -22,3 +21,9 @@ webdriver-manager==4.0.0
 anticaptchaofficial==1.0.46
 html2text==2020.1.16
 cloudscraper==1.2.71
+
+# API integrations (for hybrid scraping)
+# requests already included above for API calls
+
+# Export functionality
+openpyxl==3.1.2
